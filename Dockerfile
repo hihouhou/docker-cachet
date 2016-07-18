@@ -21,21 +21,19 @@ RUN git clone https://github.com/cachethq/Cachet.git && \
     git tag -l && \
     git checkout $LATEST_TAG
 
+WORKDIR /Cachet/
+
 #Add configuration file
 ADD .env /Cachet/
 
 #install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    cd Cachet && \
-    composer install --no-dev -o && \
-    php artisan app:install
+    composer install --no-dev -o
 
 #Configure Apache
-RUN a2enmod rewrite
-ADD toto.conf /etc/apache2/sites-enabled/000-default.conf
+ADD cachet.conf /etc/apache2/sites-available/
 
-CMD ["apache2ctl", "-D", "FOREGROUND"]
+#ADD start.sh
+ADD start.sh /Cachet/
 
-
-RUN ls -la /Cachet && \
-    cat /Cachet/.env.example
+CMD ["/bin/bash", "/Cachet/start.sh"]
